@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantUML.js Basic Example</title>
+    <!-- Require cheerpj dependency -->
+    <script src="https://cjrtnc.leaningtech.com/2.3/loader.js"></script>
+    <!-- Require PlantUML.js -->
+    <script src="plantuml.js/plantuml.js"></script>
+  </head>
+  <body>
+    <img src="loading.png" id="plantuml-diagram" />
+    <script type="text/javascript">
+        plantuml.initialize('/app/doc/plantuml/plantuml.js').then(async () => {
+            const element = document.getElementById('plantuml-diagram')
+	    const params = new URLSearchParams(window.location.search)
+            let pumlContent = `
+                @startuml
+                Bob -> Alice: Hello!
+                @enduml
+            `
+	    if (params.has('url')) {
+		    const urlParam = params.get('url');
+		    try { 
+		   console.log(`Fetching puml from ${urlParam}...`);
+			const response = await fetch(urlParam);
+			if (!response.ok) {
+				throw new Error(`Response status: ${response.status}`);
+			}
+
+		pumlContent = await response.text();
+			   
+		    } catch (error) {
+			    console.error(error.message);
+		    }
+	    }
+	console.log(`Attempting to render puml content: ${pumlContent}`)
+            const url = plantuml.renderPng(pumlContent).then((blob) => {
+                element.src = window.URL.createObjectURL(blob)
+            })
+        })
+    </script>
+  </body>
+</html>
